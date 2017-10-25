@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.lsp4e.server.ProcessStreamConnectionProvider;
 import org.eclipse.lsp4e.server.StreamConnectionProvider;
 import org.osgi.framework.Bundle;
@@ -62,7 +63,6 @@ implements StreamConnectionProvider {
 		}));
 
 		setWorkingDirectory(System.getProperty("user.dir"));
-		addPreferencesListener();
 	}
 
 	@Override
@@ -97,27 +97,6 @@ implements StreamConnectionProvider {
 		return res;
 	}
 	
-	private void addPreferencesListener() {
-		IPreferenceStore preferenceStore = Fabric8AnalysisLSUIActivator.getDefault().getPreferenceStore();
-		preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				if (Fabric8AnalysisPreferences.LSP_SERVER_ENABLED.equals(event.getProperty())) {
-					if (Fabric8AnalysisPreferences.getInstance().isLSPServerEnabled()) {
-						try {
-							start();
-						} catch (IOException e) {
-							MessageDialogUtils.displayErrorMessage("Failed to start Fabric8 analyses server", e);
-						}
-						
-					} else {
-						stop();	
-					}
-				}
-			}
-		});
-	}
-
 	private static File getNodeJsLocation() {
 		String location = null;
 		String[] command = new String[] {"/bin/bash", "-c", "which node"};
