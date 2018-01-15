@@ -48,15 +48,14 @@ import com.redhat.fabric8analytics.lsp.eclipse.ui.internal.WorkspaceFilesFinder;
  * @author Geetika Batra
  *
  */
-public class EditorComposite extends Composite{
+public class EditorComposite extends Composite implements AnalysesViewer {
 
 	protected MavenPomEditorPage editorPage;
 
-	public static Browser editorBrowser;
-
-	public static String jobID;
+	private Browser editorBrowser;
 
 	private MavenPomEditor pomEditor;
+	
 	private FormToolkit toolkit = new FormToolkit(Display.getCurrent());
 
 	public EditorComposite(Composite composite, MavenPomEditorPage editorPage, int flags, MavenPomEditor pomEditor) {
@@ -111,11 +110,9 @@ public class EditorComposite extends Composite{
 					}
 					
 					RecommenderAPIProvider provider = new RecommenderAPIProvider(serverURL, userKey, token);
-					jobID = provider.requestAnalyses(pomFiles);
+					String jobID = provider.requestAnalyses(pomFiles);
 
-
-					new AnalysesJobHandler("Analyses check Job", provider, true).schedule();
-
+					new AnalysesJobHandler(jobID, EditorComposite.this, provider).schedule();
 					editorBrowser.setUrl(provider.getAnalysesURL(jobID));
 
 				}	
@@ -127,7 +124,9 @@ public class EditorComposite extends Composite{
 			}
 		});
 	}
-	public static void updateBrowser(String url) {
+	
+	@Override
+	public void showAnalyses(String url) {
 		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				if (!editorBrowser.isDisposed()) {

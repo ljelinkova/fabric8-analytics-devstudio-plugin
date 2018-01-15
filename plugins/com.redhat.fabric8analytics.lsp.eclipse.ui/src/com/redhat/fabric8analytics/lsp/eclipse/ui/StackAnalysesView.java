@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 
-public class StackAnalysesView extends ViewPart {
+public class StackAnalysesView extends ViewPart implements AnalysesViewer {
 
 	public static final String NAME = "com.redhat.fabric8analytics.lsp.eclipse.ui.StackAnalysesView";
 	
@@ -35,11 +35,12 @@ public class StackAnalysesView extends ViewPart {
 		browser.setFocus();
 	}
 
-	public void updatebrowserUrl(String browseUrl) {
+	@Override
+	public void showAnalyses(String url) {
 		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				if (!browser.isDisposed()) {
-					browser.setUrl(browseUrl);
+					browser.setUrl(url);
 				}
 			}
 		});

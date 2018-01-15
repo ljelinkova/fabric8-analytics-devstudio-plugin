@@ -67,7 +67,6 @@ public class ExitHandler extends AbstractHandler {
 			RECOMMENDER_API_TOKEN = "Bearer "+ token;
 			RECOMMENDER_3SCALE_TOKEN = token;
 			IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(StackAnalysesView.NAME);
-			setView(view);
 			String serverURL = Fabric8AnalysisPreferences.getInstance().getProdURL();
 			String userKey = Fabric8AnalysisPreferences.getInstance().getUserKey();
 
@@ -79,29 +78,10 @@ public class ExitHandler extends AbstractHandler {
 			
 			RecommenderAPIProvider provider = new RecommenderAPIProvider(serverURL, userKey, token);
 			String jobID = provider.requestAnalyses(pomFiles);
-			setJobId(jobID);
-			new AnalysesJobHandler("Analyses check Job", provider, false).schedule();
+			new AnalysesJobHandler(jobID, (StackAnalysesView) view, provider).schedule();
 		} catch (RecommenderAPIException | StorageException | JSONException | PartInitException | ThreeScaleAPIException e) {
 			MessageDialogUtils.displayErrorMessage("Error while running stack analyses", e);
 		}
 		return null;
 	}
-
-	public static  void setJobId(String jobId) {
-		ExitHandler.jobId = jobId;
-	}
-
-	public static String getJobId() {
-		return ExitHandler.jobId;
-	}
-
-
-	public static void setView(IViewPart mainView) {
-		ExitHandler.mainView = mainView;
-	}
-
-	public static IViewPart getView() {
-		return mainView;
-	}
-
 }
